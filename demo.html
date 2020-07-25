@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="themes/light/light.css" rel="stylesheet">
     <script src="kindeditor.js?v=5"></script>
 </head>
 <body>
@@ -10,9 +11,6 @@
 <script type="text/javascript">
     (function () {
         var keditor = KindEditor.create('#kindeditor', {
-            afterBlur: function () {
-                this.sync();
-            },
             formatUploadUrl: false,
             allowFileManager: true,
             uploadJson: "{{url('kindeditor/upload')}}",

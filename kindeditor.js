@@ -5,7 +5,7 @@
 * @author Roddy <luolonghao@gmail.com>
 * @website http://www.kindsoft.net/
 * @licence http://www.kindsoft.net/license.php
-* @version 4.1.12 (2020-07-25)
+* @version 4.1.12 (2020-07-26)
 *******************************************************************************/
 (function (window, undefined) {
 	if (window.KindEditor) {
@@ -19,7 +19,7 @@ if (!window.console) {
 if (!console.log) {
 	console.log = function () {};
 }
-var _VERSION = '4.1.12 (2020-07-25)',
+var _VERSION = '4.1.12 (2020-07-26)',
 	_ua = navigator.userAgent.toLowerCase(),
 	_IE = _ua.indexOf('msie') > -1 && _ua.indexOf('opera') == -1,
 	_NEWIE = _ua.indexOf('msie') == -1 && _ua.indexOf('trident') > -1,
@@ -240,7 +240,7 @@ K.options = {
     themesPath: K.basePath + 'themes/',
     langPath: K.basePath + 'lang/',
     pluginsPath: K.basePath + 'plugins/',
-    themeType: 'default',
+    themeType: 'light',
     langType: 'zh-CN',
     urlType: 'domain',
     newlineTag: 'p',
@@ -5478,8 +5478,6 @@ function _create(expr, options) {
 	options.pluginsPath = _undef(options.pluginsPath, options.basePath + 'plugins/');
 	if (_undef(options.loadStyleMode, K.options.loadStyleMode)) {
 		var themeType = _undef(options.themeType, K.options.themeType);
-		_loadStyle(options.themesPath + 'default/default.css');
-		_loadStyle(options.themesPath + themeType + '/' + themeType + '.css');
 	}
 	function create(editor) {
 		_each(_plugins, function(name, fn) {
