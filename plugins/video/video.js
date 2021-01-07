@@ -64,7 +64,7 @@ KindEditor.plugin('video', function (K) {
 
                             var html = '';
                             if (/youku\.com/.test(url)) {
-                                var arr = /id\_(\w+)[\=|\.html]/.exec(url);
+                                var arr = /id\_(.+)\.html/.exec(url);
                                 html = '<iframe src="https://player.youku.com/embed/' + arr[1] + '" width="' + width + '" height="' + height + '" frameborder="0" webkit-playsinline playsinline x5-playsinline x-webkit-airplay="allow" allowfullscreen></iframe>';
                             }
 

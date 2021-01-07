@@ -1,8 +1,8 @@
 {
-	"name" : "KindEditor",
+	"name" : "kindeditor",
 	"version" : "4.1.12",
 	"filename" : "kindeditor",
-	"repository" : "kindsoft/kindeditor",
+	"repository" : "gzdsx/kindeditor",
 	"devDependencies" : {
 		"grunt": "~0.4.1",
 		"grunt-contrib-concat": "~0.3.0",

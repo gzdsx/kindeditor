@@ -1,11 +1,11 @@
 /*******************************************************************************
 * KindEditor - WYSIWYG HTML Editor for Internet
-* Copyright (C) 2006-2020 kindsoft.net
+* Copyright (C) 2006-2021 kindsoft.net
 *
 * @author Roddy <luolonghao@gmail.com>
 * @website http://www.kindsoft.net/
 * @licence http://www.kindsoft.net/license.php
-* @version 4.1.12 (2020-08-01)
+* @version 4.1.12 (2021-01-08)
 *******************************************************************************/
 (function (window, undefined) {
 	if (window.KindEditor) {
@@ -19,7 +19,7 @@ if (!window.console) {
 if (!console.log) {
 	console.log = function () {};
 }
-var _VERSION = '4.1.12 (2020-08-01)',
+var _VERSION = '4.1.12 (2021-01-08)',
 	_ua = navigator.userAgent.toLowerCase(),
 	_IE = _ua.indexOf('msie') > -1 && _ua.indexOf('opera') == -1,
 	_NEWIE = _ua.indexOf('msie') == -1 && _ua.indexOf('trident') > -1,
@@ -2541,806 +2541,695 @@ K.START_TO_END = _START_TO_END;
 K.END_TO_END = _END_TO_END;
 K.END_TO_START = _END_TO_START;
 
-
+
 function _nativeCommand(doc, key, val) {
-	try {
-		doc.execCommand(key, false, val);
-	} catch(e) {}
-}
+    try {
+        doc.execCommand(key, false, val);
+    } catch (e) {
+    }
+}
+
 function _nativeCommandValue(doc, key) {
-	var val = '';
-	try {
-		val = doc.queryCommandValue(key);
-	} catch (e) {}
-	if (typeof val !== 'string') {
-		val = '';
-	}
-	return val;
-}
+    var val = '';
+    try {
+        val = doc.queryCommandValue(key);
+    } catch (e) {
+    }
+    if (typeof val !== 'string') {
+        val = '';
+    }
+    return val;
+}
+
 function _getSel(doc) {
-	var win = _getWin(doc);
-	return _IERANGE ? doc.selection : win.getSelection();
-}
+    var win = _getWin(doc);
+    return _IERANGE ? doc.selection : win.getSelection();
+}
+
 function _getRng(doc) {
-	var sel = _getSel(doc), rng;
-	try {
-		if (sel.rangeCount > 0) {
-			rng = sel.getRangeAt(0);
-		} else {
-			rng = sel.createRange();
-		}
-	} catch(e) {}
-	if (_IERANGE && (!rng || (!rng.item && rng.parentElement().ownerDocument !== doc))) {
-		return null;
-	}
-	return rng;
-}
+    var sel = _getSel(doc), rng;
+    try {
+        if (sel.rangeCount > 0) {
+            rng = sel.getRangeAt(0);
+        } else {
+            rng = sel.createRange();
+        }
+    } catch (e) {
+    }
+    if (_IERANGE && (!rng || (!rng.item && rng.parentElement().ownerDocument !== doc))) {
+        return null;
+    }
+    return rng;
+}
+
 function _singleKeyMap(map) {
-	var newMap = {}, arr, v;
-	_each(map, function(key, val) {
-		arr = key.split(',');
-		for (var i = 0, len = arr.length; i < len; i++) {
-			v = arr[i];
-			newMap[v] = val;
-		}
-	});
-	return newMap;
-}
+    var newMap = {}, arr, v;
+    _each(map, function (key, val) {
+        arr = key.split(',');
+        for (var i = 0, len = arr.length; i < len; i++) {
+            v = arr[i];
+            newMap[v] = val;
+        }
+    });
+    return newMap;
+}
+
 function _hasAttrOrCss(knode, map) {
-	return _hasAttrOrCssByKey(knode, map, '*') || _hasAttrOrCssByKey(knode, map);
+    return _hasAttrOrCssByKey(knode, map, '*') || _hasAttrOrCssByKey(knode, map);
 }
 function _hasAttrOrCssByKey(knode, map, mapKey) {
-	mapKey = mapKey || knode.name;
-	if (knode.type !== 1) {
-		return false;
-	}
-	var newMap = _singleKeyMap(map);
-	if (!newMap[mapKey]) {
-		return false;
-	}
-	var arr = newMap[mapKey].split(',');
-	for (var i = 0, len = arr.length; i < len; i++) {
-		var key = arr[i];
-		if (key === '*') {
-			return true;
-		}
-		var match = /^(\.?)([^=]+)(?:=([^=]*))?$/.exec(key);
-		var method = match[1] ? 'css' : 'attr';
-		key = match[2];
-		var val = match[3] || '';
-		if (val === '' && knode[method](key) !== '') {
-			return true;
-		}
-		if (val !== '' && knode[method](key) === val) {
-			return true;
-		}
-	}
-	return false;
-}
+    mapKey = mapKey || knode.name;
+    if (knode.type !== 1) {
+        return false;
+    }
+    var newMap = _singleKeyMap(map);
+    if (!newMap[mapKey]) {
+        return false;
+    }
+    var arr = newMap[mapKey].split(',');
+    for (var i = 0, len = arr.length; i < len; i++) {
+        var key = arr[i];
+        if (key === '*') {
+            return true;
+        }
+        var match = /^(\.?)([^=]+)(?:=([^=]*))?$/.exec(key);
+        var method = match[1] ? 'css' : 'attr';
+        key = match[2];
+        var val = match[3] || '';
+        if (val === '' && knode[method](key) !== '') {
+            return true;
+        }
+        if (val !== '' && knode[method](key) === val) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function _removeAttrOrCss(knode, map) {
-	if (knode.type != 1) {
-		return;
-	}
-	_removeAttrOrCssByKey(knode, map, '*');
-	_removeAttrOrCssByKey(knode, map);
+    if (knode.type != 1) {
+        return;
+    }
+    _removeAttrOrCssByKey(knode, map, '*');
+    _removeAttrOrCssByKey(knode, map);
 }
 function _removeAttrOrCssByKey(knode, map, mapKey) {
-	mapKey = mapKey || knode.name;
-	if (knode.type !== 1) {
-		return;
-	}
-	var newMap = _singleKeyMap(map);
-	if (!newMap[mapKey]) {
-		return;
-	}
-	var arr = newMap[mapKey].split(','), allFlag = false;
-	for (var i = 0, len = arr.length; i < len; i++) {
-		var key = arr[i];
-		if (key === '*') {
-			allFlag = true;
-			break;
-		}
-		var match = /^(\.?)([^=]+)(?:=([^=]*))?$/.exec(key);
-		key = match[2];
-		if (match[1]) {
-			key = _toCamel(key);
-			if (knode[0].style[key]) {
-				knode[0].style[key] = '';
-			}
-		} else {
-			knode.removeAttr(key);
-		}
-	}
-	if (allFlag) {
-		knode.remove(true);
-	}
-}
+    mapKey = mapKey || knode.name;
+    if (knode.type !== 1) {
+        return;
+    }
+    var newMap = _singleKeyMap(map);
+    if (!newMap[mapKey]) {
+        return;
+    }
+    var arr = newMap[mapKey].split(','), allFlag = false;
+    for (var i = 0, len = arr.length; i < len; i++) {
+        var key = arr[i];
+        if (key === '*') {
+            allFlag = true;
+            break;
+        }
+        var match = /^(\.?)([^=]+)(?:=([^=]*))?$/.exec(key);
+        key = match[2];
+        if (match[1]) {
+            key = _toCamel(key);
+            if (knode[0].style[key]) {
+                knode[0].style[key] = '';
+            }
+        } else {
+            knode.removeAttr(key);
+        }
+    }
+    if (allFlag) {
+        knode.remove(true);
+    }
+}
+
 function _getInnerNode(knode) {
-	var inner = knode;
-	while (inner.first()) {
-		inner = inner.first();
-	}
-	return inner;
-}
+    var inner = knode;
+    while (inner.first()) {
+        inner = inner.first();
+    }
+    return inner;
+}
+
 function _isEmptyNode(knode) {
-	if (knode.type != 1 || knode.isSingle()) {
-		return false;
-	}
-	return knode.html().replace(/<[^>]+>/g, '') === '';
-}
+    if (knode.type != 1 || knode.isSingle()) {
+        return false;
+    }
+    return knode.html().replace(/<[^>]+>/g, '') === '';
+}
+
 function _mergeWrapper(a, b) {
-	a = a.clone(true);
-	var lastA = _getInnerNode(a), childA = a, merged = false;
-	while (b) {
-		while (childA) {
-			if (childA.name === b.name) {
-				_mergeAttrs(childA, b.attr(), b.css());
-				merged = true;
-			}
-			childA = childA.first();
-		}
-		if (!merged) {
-			lastA.append(b.clone(false));
-		}
-		merged = false;
-		b = b.first();
-	}
-	return a;
-}
+    a = a.clone(true);
+    var lastA = _getInnerNode(a), childA = a, merged = false;
+    while (b) {
+        while (childA) {
+            if (childA.name === b.name) {
+                _mergeAttrs(childA, b.attr(), b.css());
+                merged = true;
+            }
+            childA = childA.first();
+        }
+        if (!merged) {
+            lastA.append(b.clone(false));
+        }
+        merged = false;
+        b = b.first();
+    }
+    return a;
+}
+
 function _wrapNode(knode, wrapper) {
-	wrapper = wrapper.clone(true);
-	if (knode.type == 3) {
-		_getInnerNode(wrapper).append(knode.clone(false));
-		knode.replaceWith(wrapper);
-		return wrapper;
-	}
-	var nodeWrapper = knode, child;
-	while ((child = knode.first()) && child.children().length == 1) {
-		knode = child;
-	}
-	child = knode.first();
-	var frag = knode.doc.createDocumentFragment();
-	while (child) {
-		frag.appendChild(child[0]);
-		child = child.next();
-	}
-	wrapper = _mergeWrapper(nodeWrapper, wrapper);
-	if (frag.firstChild) {
-		_getInnerNode(wrapper).append(frag);
-	}
-	nodeWrapper.replaceWith(wrapper);
-	return wrapper;
-}
+    wrapper = wrapper.clone(true);
+    if (knode.type == 3) {
+        _getInnerNode(wrapper).append(knode.clone(false));
+        knode.replaceWith(wrapper);
+        return wrapper;
+    }
+    var nodeWrapper = knode, child;
+    while ((child = knode.first()) && child.children().length == 1) {
+        knode = child;
+    }
+    child = knode.first();
+    var frag = knode.doc.createDocumentFragment();
+    while (child) {
+        frag.appendChild(child[0]);
+        child = child.next();
+    }
+    wrapper = _mergeWrapper(nodeWrapper, wrapper);
+    if (frag.firstChild) {
+        _getInnerNode(wrapper).append(frag);
+    }
+    nodeWrapper.replaceWith(wrapper);
+    return wrapper;
+}
+
 function _mergeAttrs(knode, attrs, styles) {
-	_each(attrs, function(key, val) {
-		if (key !== 'style') {
-			knode.attr(key, val);
-		}
-	});
-	_each(styles, function(key, val) {
-		knode.css(key, val);
-	});
-}
+    _each(attrs, function (key, val) {
+        if (key !== 'style') {
+            knode.attr(key, val);
+        }
+    });
+    _each(styles, function (key, val) {
+        knode.css(key, val);
+    });
+}
+
 function _inPreElement(knode) {
-	while (knode && knode.name != 'body') {
-		if (_PRE_TAG_MAP[knode.name] || knode.name == 'div' && knode.hasClass('ke-script')) {
-			return true;
-		}
-		knode = knode.parent();
-	}
-	return false;
-}
+    while (knode && knode.name != 'body') {
+        if (_PRE_TAG_MAP[knode.name] || knode.name == 'div' && knode.hasClass('ke-script')) {
+            return true;
+        }
+        knode = knode.parent();
+    }
+    return false;
+}
+
 function KCmd(range) {
-	this.init(range);
+    this.init(range);
 }
 _extend(KCmd, {
-	init : function(range) {
-		var self = this, doc = range.doc;
-		self.doc = doc;
-		self.win = _getWin(doc);
-		self.sel = _getSel(doc);
-		self.range = range;
-	},
-	selection : function(forceReset) {
-		var self = this, doc = self.doc, rng = _getRng(doc);
-		self.sel = _getSel(doc);
-		if (rng) {
-			self.range = _range(rng);
-			if (K(self.range.startContainer).name == 'html') {
-				self.range.selectNodeContents(doc.body).collapse(false);
-			}
-			return self;
-		}
-		if (forceReset) {
-			self.range.selectNodeContents(doc.body).collapse(false);
-		}
-		return self;
-	},
-	select : function(hasDummy) {
-		hasDummy = _undef(hasDummy, true);
-		var self = this, sel = self.sel, range = self.range.cloneRange().shrink(),
-			sc = range.startContainer, so = range.startOffset,
-			ec = range.endContainer, eo = range.endOffset,
-			doc = _getDoc(sc), win = self.win, rng, hasU200b = false;
-		if (hasDummy && sc.nodeType == 1 && range.collapsed) {
-			if (_IERANGE) {
-				var dummy = K('<span>&nbsp;</span>', doc);
-				range.insertNode(dummy[0]);
-				rng = doc.body.createTextRange();
-				try {
-					rng.moveToElementText(dummy[0]);
-				} catch(ex) {}
-				rng.collapse(false);
-				rng.select();
-				dummy.remove();
-				win.focus();
-				return self;
-			}
-			if (_WEBKIT) {
-				var children = sc.childNodes;
-				if (K(sc).isInline() || so > 0 && K(children[so - 1]).isInline() || children[so] && K(children[so]).isInline()) {
-					range.insertNode(doc.createTextNode('\u200B'));
-					hasU200b = true;
-				}
-			}
-		}
-		if (_IERANGE) {
-			try {
-				rng = range.get(true);
-				rng.select();
-			} catch(e) {}
-		} else {
-			if (hasU200b) {
-				range.collapse(false);
-			}
-			rng = range.get(true);
-			sel.removeAllRanges();
-			sel.addRange(rng);
-			if (doc !== document) {
-				var pos = K(rng.endContainer).pos();
-				win.scrollTo(pos.x, pos.y);
-			}
-		}
-		win.focus();
-		return self;
-	},
-	wrap : function(val) {
-		var self = this, doc = self.doc, range = self.range, wrapper;
-		wrapper = K(val, doc);
-		if (range.collapsed) {
-			range.shrink();
-			range.insertNode(wrapper[0]).selectNodeContents(wrapper[0]);
-			return self;
-		}
-		if (wrapper.isBlock()) {
-			var copyWrapper = wrapper.clone(true), child = copyWrapper;
-			while (child.first()) {
-				child = child.first();
-			}
-			child.append(range.extractContents());
-			range.insertNode(copyWrapper[0]).selectNode(copyWrapper[0]);
-			return self;
-		}
-		range.enlarge();
-		var bookmark = range.createBookmark(), ancestor = range.commonAncestor(), isStart = false;
-		K(ancestor).scan(function(node) {
-			if (!isStart && node == bookmark.start) {
-				isStart = true;
-				return;
-			}
-			if (isStart) {
-				if (node == bookmark.end) {
-					return false;
-				}
-				var knode = K(node);
-				if (_inPreElement(knode)) {
-					return;
-				}
-				if (knode.type == 3 && _trim(node.nodeValue).length > 0) {
-					var parent;
-					while ((parent = knode.parent()) && parent.isStyle() && parent.children().length == 1) {
-						knode = parent;
-					}
-					_wrapNode(knode, wrapper);
-				}
-			}
-		});
-		range.moveToBookmark(bookmark);
-		return self;
-	},
-	split : function(isStart, map) {
-		var range = this.range, doc = range.doc;
-		var tempRange = range.cloneRange().collapse(isStart);
-		var node = tempRange.startContainer, pos = tempRange.startOffset,
-			parent = node.nodeType == 3 ? node.parentNode : node,
-			needSplit = false, knode;
-		while (parent && parent.parentNode) {
-			knode = K(parent);
-			if (map) {
-				if (!knode.isStyle()) {
-					break;
-				}
-				if (!_hasAttrOrCss(knode, map)) {
-					break;
-				}
-			} else {
-				if (_NOSPLIT_TAG_MAP[knode.name]) {
-					break;
-				}
-			}
-			needSplit = true;
-			parent = parent.parentNode;
-		}
-		if (needSplit) {
-			var dummy = doc.createElement('span');
-			range.cloneRange().collapse(!isStart).insertNode(dummy);
-			if (isStart) {
-				tempRange.setStartBefore(parent.firstChild).setEnd(node, pos);
-			} else {
-				tempRange.setStart(node, pos).setEndAfter(parent.lastChild);
-			}
-			var frag = tempRange.extractContents(),
-				first = frag.firstChild, last = frag.lastChild;
-			if (isStart) {
-				tempRange.insertNode(frag);
-				range.setStartAfter(last).setEndBefore(dummy);
-			} else {
-				parent.appendChild(frag);
-				range.setStartBefore(dummy).setEndBefore(first);
-			}
-			var dummyParent = dummy.parentNode;
-			if (dummyParent == range.endContainer) {
-				var prev = K(dummy).prev(), next = K(dummy).next();
-				if (prev && next && prev.type == 3 && next.type == 3) {
-					range.setEnd(prev[0], prev[0].nodeValue.length);
-				} else if (!isStart) {
-					range.setEnd(range.endContainer, range.endOffset - 1);
-				}
-			}
-			dummyParent.removeChild(dummy);
-		}
-		return this;
-	},
-	remove : function(map) {
-		var self = this, doc = self.doc, range = self.range;
-		range.enlarge();
-		if (range.startOffset === 0) {
-			var ksc = K(range.startContainer), parent;
-			while ((parent = ksc.parent()) && parent.isStyle() && parent.children().length == 1) {
-				ksc = parent;
-			}
-			range.setStart(ksc[0], 0);
-			ksc = K(range.startContainer);
-			if (ksc.isBlock()) {
-				_removeAttrOrCss(ksc, map);
-			}
-			var kscp = ksc.parent();
-			if (kscp && kscp.isBlock()) {
-				_removeAttrOrCss(kscp, map);
-			}
-		}
-		var sc, so;
-		if (range.collapsed) {
-			self.split(true, map);
-			sc = range.startContainer;
-			so = range.startOffset;
-			if (so > 0) {
-				var sb = K(sc.childNodes[so - 1]);
-				if (sb && _isEmptyNode(sb)) {
-					sb.remove();
-					range.setStart(sc, so - 1);
-				}
-			}
-			var sa = K(sc.childNodes[so]);
-			if (sa && _isEmptyNode(sa)) {
-				sa.remove();
-			}
-			if (_isEmptyNode(sc)) {
-				range.startBefore(sc);
-				sc.remove();
-			}
-			range.collapse(true);
-			return self;
-		}
-		self.split(true, map);
-		self.split(false, map);
-		var startDummy = doc.createElement('span'), endDummy = doc.createElement('span');
-		range.cloneRange().collapse(false).insertNode(endDummy);
-		range.cloneRange().collapse(true).insertNode(startDummy);
-		var nodeList = [], cmpStart = false;
-		K(range.commonAncestor()).scan(function(node) {
-			if (!cmpStart && node == startDummy) {
-				cmpStart = true;
-				return;
-			}
-			if (node == endDummy) {
-				return false;
-			}
-			if (cmpStart) {
-				nodeList.push(node);
-			}
-		});
-		K(startDummy).remove();
-		K(endDummy).remove();
-		sc = range.startContainer;
-		so = range.startOffset;
-		var ec = range.endContainer, eo = range.endOffset;
-		if (so > 0) {
-			var startBefore = K(sc.childNodes[so - 1]);
-			if (startBefore && _isEmptyNode(startBefore)) {
-				startBefore.remove();
-				range.setStart(sc, so - 1);
-				if (sc == ec) {
-					range.setEnd(ec, eo - 1);
-				}
-			}
-			var startAfter = K(sc.childNodes[so]);
-			if (startAfter && _isEmptyNode(startAfter)) {
-				startAfter.remove();
-				if (sc == ec) {
-					range.setEnd(ec, eo - 1);
-				}
-			}
-		}
-		var endAfter = K(ec.childNodes[range.endOffset]);
-		if (endAfter && _isEmptyNode(endAfter)) {
-			endAfter.remove();
-		}
-		var bookmark = range.createBookmark(true);
-		_each(nodeList, function(i, node) {
-			_removeAttrOrCss(K(node), map);
-		});
-		range.moveToBookmark(bookmark);
-		return self;
-	},
-	commonNode : function(map) {
-		var range = this.range;
-		var ec = range.endContainer, eo = range.endOffset,
-			node = (ec.nodeType == 3 || eo === 0) ? ec : ec.childNodes[eo - 1];
-		function find(node) {
-			var child = node, parent = node;
-			while (parent) {
-				if (_hasAttrOrCss(K(parent), map)) {
-					return K(parent);
-				}
-				parent = parent.parentNode;
-			}
-			while (child && (child = child.lastChild)) {
-				if (_hasAttrOrCss(K(child), map)) {
-					return K(child);
-				}
-			}
-			return null;
-		}
-		var cNode = find(node);
-		if (cNode) {
-			return cNode;
-		}
-		if (node.nodeType == 1 || (ec.nodeType == 3 && eo === 0)) {
-			var prev = K(node).prev();
-			if (prev) {
-				return find(prev);
-			}
-		}
-		return null;
-	},
-	commonAncestor : function(tagName) {
-		var range = this.range,
-			sc = range.startContainer, so = range.startOffset,
-			ec = range.endContainer, eo = range.endOffset,
-			startNode = (sc.nodeType == 3 || so === 0) ? sc : sc.childNodes[so - 1],
-			endNode = (ec.nodeType == 3 || eo === 0) ? ec : ec.childNodes[eo - 1];
-		function find(node) {
-			while (node) {
-				if (node.nodeType == 1) {
-					if (node.tagName.toLowerCase() === tagName) {
-						return node;
-					}
-				}
-				node = node.parentNode;
-			}
-			return null;
-		}
-		var start = find(startNode), end = find(endNode);
-		if (start && end && start === end) {
-			return K(start);
-		}
-		return null;
-	},
-	state : function(key) {
-		var self = this, doc = self.doc, bool = false;
-		try {
-			bool = doc.queryCommandState(key);
-		} catch (e) {}
-		return bool;
-	},
-	val : function(key) {
-		var self = this, doc = self.doc, range = self.range;
-		function lc(val) {
-			return val.toLowerCase();
-		}
-		key = lc(key);
-		var val = '', knode;
-		if (key === 'fontfamily' || key === 'fontname') {
-			val = _nativeCommandValue(doc, 'fontname');
-			val = val.replace(/['"]/g, '');
-			return lc(val);
-		}
-		if (key === 'formatblock') {
-			val = _nativeCommandValue(doc, key);
-			if (val === '') {
-				knode = self.commonNode({'h1,h2,h3,h4,h5,h6,p,div,pre,address' : '*'});
-				if (knode) {
-					val = knode.name;
-				}
-			}
-			if (val === 'Normal') {
-				val = 'p';
-			}
-			return lc(val);
-		}
-		if (key === 'fontsize') {
-			knode = self.commonNode({'*' : '.font-size'});
-			if (knode) {
-				val = knode.css('font-size');
-			}
-			return lc(val);
-		}
-		if (key === 'forecolor') {
-			knode = self.commonNode({'*' : '.color'});
-			if (knode) {
-				val = knode.css('color');
-			}
-			val = _toHex(val);
-			if (val === '') {
-				val = 'default';
-			}
-			return lc(val);
-		}
-		if (key === 'hilitecolor') {
-			knode = self.commonNode({'*' : '.background-color'});
-			if (knode) {
-				val = knode.css('background-color');
-			}
-			val = _toHex(val);
-			if (val === '') {
-				val = 'default';
-			}
-			return lc(val);
-		}
-		return val;
-	},
-	toggle : function(wrapper, map) {
-		var self = this;
-		if (self.commonNode(map)) {
-			self.remove(map);
-		} else {
-			self.wrap(wrapper);
-		}
-		return self.select();
-	},
-	bold : function() {
-		return this.toggle('<strong></strong>', {
-			span : '.font-weight=bold',
-			strong : '*',
-			b : '*'
-		});
-	},
-	italic : function() {
-		return this.toggle('<em></em>', {
-			span : '.font-style=italic',
-			em : '*',
-			i : '*'
-		});
-	},
-	underline : function() {
-		return this.toggle('<u></u>', {
-			span : '.text-decoration=underline',
-			u : '*'
-		});
-	},
-	strikethrough : function() {
-		return this.toggle('<s></s>', {
-			span : '.text-decoration=line-through',
-			s : '*'
-		});
-	},
-	forecolor : function(val) {
-		return this.wrap('<span style="color:' + val + ';"></span>').select();
-	},
-	hilitecolor : function(val) {
-		return this.wrap('<span style="background-color:' + val + ';"></span>').select();
-	},
-	fontsize : function(val) {
-		return this.wrap('<span style="font-size:' + val + ';"></span>').select();
-	},
-	fontname : function(val) {
-		return this.fontfamily(val);
-	},
-	fontfamily : function(val) {
-		return this.wrap('<span style="font-family:' + val + ';"></span>').select();
-	},
-	removeformat : function() {
-		var map = {
-			'*' : '.font-weight,.font-style,.text-decoration,.color,.background-color,.font-size,.font-family,.text-indent'
-		},
-		tags = _STYLE_TAG_MAP;
-		_each(tags, function(key, val) {
-			map[key] = '*';
-		});
-		this.remove(map);
-		return this.select();
-	},
-	inserthtml : function(val, quickMode) {
-		var self = this, range = self.range;
-		if (val === '') {
-			return self;
-		}
-		function pasteHtml(range, val) {
-			val = '<img id="__kindeditor_temp_tag__" width="0" height="0" style="display:none;" />' + val;
-			var rng = range.get();
-			if (rng.item) {
-				rng.item(0).outerHTML = val;
-			} else {
-				rng.pasteHTML(val);
-			}
-			var temp = range.doc.getElementById('__kindeditor_temp_tag__');
-			temp.parentNode.removeChild(temp);
-			var newRange = _toRange(rng);
-			range.setEnd(newRange.endContainer, newRange.endOffset);
-			range.collapse(false);
-			self.select(false);
-		}
-		function insertHtml(range, val) {
-			var doc = range.doc,
-				frag = doc.createDocumentFragment();
-			K('@' + val, doc).each(function() {
-				frag.appendChild(this);
-			});
-			range.deleteContents();
-			range.insertNode(frag);
-			range.collapse(false);
-			self.select(false);
-		}
-		if (_IERANGE && quickMode) {
-			try {
-				pasteHtml(range, val);
-			} catch(e) {
-				insertHtml(range, val);
-			}
-			return self;
-		}
-		insertHtml(range, val);
-		return self;
-	},
-	hr : function() {
-		return this.inserthtml('<hr />');
-	},
-	print : function() {
-		this.win.print();
-		return this;
-	},
-	insertimage : function(url, title, width, height, border, align) {
-		title = _undef(title, '');
-		border = _undef(border, 0);
-		var html = '<img src="' + _escape(url) + '" data-ke-src="' + _escape(url) + '" ';
-		if (width) {
-			html += 'width="' + _escape(width) + '" ';
-		}
-		if (height) {
-			html += 'height="' + _escape(height) + '" ';
-		}
-		if (title) {
-			html += 'title="' + _escape(title) + '" ';
-		}
-		if (align) {
-			html += 'align="' + _escape(align) + '" ';
-		}
-		html += 'alt="' + _escape(title) + '" ';
-		html += '/>';
-		return this.inserthtml(html);
-	},
-	createlink : function(url, type) {
-		var self = this, doc = self.doc, range = self.range;
-		self.select();
-		var a = self.commonNode({ a : '*' });
-		if (a && !range.isControl()) {
-			range.selectNode(a.get());
-			self.select();
-		}
-		var html = '<a href="' + _escape(url) + '" data-ke-src="' + _escape(url) + '" ';
-		if (type) {
-			html += ' target="' + _escape(type) + '"';
-		}
-		if (range.collapsed) {
-			html += '>' + _escape(url) + '</a>';
-			return self.inserthtml(html);
-		}
-		if (range.isControl()) {
-			var node = K(range.startContainer.childNodes[range.startOffset]);
-			html += '></a>';
-			node.after(K(html, doc));
-			node.next().append(node);
-			range.selectNode(node[0]);
-			return self.select();
-		}
-		function setAttr(node, url, type) {
-			K(node).attr('href', url).attr('data-ke-src', url);
-			if (type) {
-				K(node).attr('target', type);
-			} else {
-				K(node).removeAttr('target');
-			}
-		}
-		var sc = range.startContainer, so = range.startOffset,
-			ec = range.endContainer, eo = range.endOffset;
-		if (sc.nodeType == 1 && sc === ec && so + 1 === eo) {
-			var child = sc.childNodes[so];
-			if (child.nodeName.toLowerCase() == 'a') {
-				setAttr(child, url, type);
-				return self;
-			}
-		}
-		_nativeCommand(doc, 'createlink', '__kindeditor_temp_url__');
-		K('a[href="__kindeditor_temp_url__"]', doc).each(function() {
-			setAttr(this, url, type);
-		});
-		return self;
-	},
-	unlink : function() {
-		var self = this, doc = self.doc, range = self.range;
-		self.select();
-		if (range.collapsed) {
-			var a = self.commonNode({ a : '*' });
-			if (a) {
-				range.selectNode(a.get());
-				self.select();
-			}
-			_nativeCommand(doc, 'unlink', null);
-			if (_WEBKIT && K(range.startContainer).name === 'img') {
-				var parent = K(range.startContainer).parent();
-				if (parent.name === 'a') {
-					parent.remove(true);
-				}
-			}
-		} else {
-			_nativeCommand(doc, 'unlink', null);
-		}
-		return self;
-	}
+    init: function (range) {
+        var self = this, doc = range.doc;
+        self.doc = doc;
+        self.win = _getWin(doc);
+        self.sel = _getSel(doc);
+        self.range = range;
+    },
+    selection: function (forceReset) {
+        var self = this, doc = self.doc, rng = _getRng(doc);
+        self.sel = _getSel(doc);
+        if (rng) {
+            self.range = _range(rng);
+            if (K(self.range.startContainer).name == 'html') {
+                self.range.selectNodeContents(doc.body).collapse(false);
+            }
+            return self;
+        }
+        if (forceReset) {
+            self.range.selectNodeContents(doc.body).collapse(false);
+        }
+        return self;
+    },
+    select: function (hasDummy) {
+        hasDummy = _undef(hasDummy, true);
+        var self = this, sel = self.sel, range = self.range.cloneRange().shrink(),
+            sc = range.startContainer, so = range.startOffset,
+            ec = range.endContainer, eo = range.endOffset,
+            doc = _getDoc(sc), win = self.win, rng, hasU200b = false;
+        if (hasDummy && sc.nodeType == 1 && range.collapsed) {
+            if (_IERANGE) {
+                var dummy = K('<span>&nbsp;</span>', doc);
+                range.insertNode(dummy[0]);
+                rng = doc.body.createTextRange();
+                try {
+                    rng.moveToElementText(dummy[0]);
+                } catch (ex) {
+                }
+                rng.collapse(false);
+                rng.select();
+                dummy.remove();
+                win.focus();
+                return self;
+            }
+            if (_WEBKIT) {
+                var children = sc.childNodes;
+                if (K(sc).isInline() || so > 0 && K(children[so - 1]).isInline() || children[so] && K(children[so]).isInline()) {
+                    range.insertNode(doc.createTextNode('\u200B'));
+                    hasU200b = true;
+                }
+            }
+        }
+        if (_IERANGE) {
+            try {
+                rng = range.get(true);
+                rng.select();
+            } catch (e) {
+            }
+        } else {
+            if (hasU200b) {
+                range.collapse(false);
+            }
+            rng = range.get(true);
+            sel.removeAllRanges();
+            sel.addRange(rng);
+        }
+        win.focus();
+        return self;
+    },
+    wrap: function (val) {
+        var self = this, doc = self.doc, range = self.range, wrapper;
+        wrapper = K(val, doc);
+        if (range.collapsed) {
+            range.shrink();
+            range.insertNode(wrapper[0]).selectNodeContents(wrapper[0]);
+            return self;
+        }
+        if (wrapper.isBlock()) {
+            var copyWrapper = wrapper.clone(true), child = copyWrapper;
+            while (child.first()) {
+                child = child.first();
+            }
+            child.append(range.extractContents());
+            range.insertNode(copyWrapper[0]).selectNode(copyWrapper[0]);
+            return self;
+        }
+        range.enlarge();
+        var bookmark = range.createBookmark(), ancestor = range.commonAncestor(), isStart = false;
+        K(ancestor).scan(function (node) {
+            if (!isStart && node == bookmark.start) {
+                isStart = true;
+                return;
+            }
+            if (isStart) {
+                if (node == bookmark.end) {
+                    return false;
+                }
+                var knode = K(node);
+                if (_inPreElement(knode)) {
+                    return;
+                }
+                if (knode.type == 3 && _trim(node.nodeValue).length > 0) {
+                    var parent;
+                    while ((parent = knode.parent()) && parent.isStyle() && parent.children().length == 1) {
+                        knode = parent;
+                    }
+                    _wrapNode(knode, wrapper);
+                }
+            }
+        });
+        range.moveToBookmark(bookmark);
+        return self;
+    },
+    split: function (isStart, map) {
+        var range = this.range, doc = range.doc;
+        var tempRange = range.cloneRange().collapse(isStart);
+        var node = tempRange.startContainer, pos = tempRange.startOffset,
+            parent = node.nodeType == 3 ? node.parentNode : node,
+            needSplit = false, knode;
+        while (parent && parent.parentNode) {
+            knode = K(parent);
+            if (map) {
+                if (!knode.isStyle()) {
+                    break;
+                }
+                if (!_hasAttrOrCss(knode, map)) {
+                    break;
+                }
+            } else {
+                if (_NOSPLIT_TAG_MAP[knode.name]) {
+                    break;
+                }
+            }
+            needSplit = true;
+            parent = parent.parentNode;
+        }
+        if (needSplit) {
+            var dummy = doc.createElement('span');
+            range.cloneRange().collapse(!isStart).insertNode(dummy);
+            if (isStart) {
+                tempRange.setStartBefore(parent.firstChild).setEnd(node, pos);
+            } else {
+                tempRange.setStart(node, pos).setEndAfter(parent.lastChild);
+            }
+            var frag = tempRange.extractContents(),
+                first = frag.firstChild, last = frag.lastChild;
+            if (isStart) {
+                tempRange.insertNode(frag);
+                range.setStartAfter(last).setEndBefore(dummy);
+            } else {
+                parent.appendChild(frag);
+                range.setStartBefore(dummy).setEndBefore(first);
+            }
+            var dummyParent = dummy.parentNode;
+            if (dummyParent == range.endContainer) {
+                var prev = K(dummy).prev(), next = K(dummy).next();
+                if (prev && next && prev.type == 3 && next.type == 3) {
+                    range.setEnd(prev[0], prev[0].nodeValue.length);
+                } else if (!isStart) {
+                    range.setEnd(range.endContainer, range.endOffset - 1);
+                }
+            }
+            dummyParent.removeChild(dummy);
+        }
+        return this;
+    },
+    remove: function (map) {
+        var self = this, doc = self.doc, range = self.range;
+        range.enlarge();
+        if (range.startOffset === 0) {
+            var ksc = K(range.startContainer), parent;
+            while ((parent = ksc.parent()) && parent.isStyle() && parent.children().length == 1) {
+                ksc = parent;
+            }
+            range.setStart(ksc[0], 0);
+            ksc = K(range.startContainer);
+            if (ksc.isBlock()) {
+                _removeAttrOrCss(ksc, map);
+            }
+            var kscp = ksc.parent();
+            if (kscp && kscp.isBlock()) {
+                _removeAttrOrCss(kscp, map);
+            }
+        }
+        var sc, so;
+        if (range.collapsed) {
+            self.split(true, map);
+            sc = range.startContainer;
+            so = range.startOffset;
+            if (so > 0) {
+                var sb = K(sc.childNodes[so - 1]);
+                if (sb && _isEmptyNode(sb)) {
+                    sb.remove();
+                    range.setStart(sc, so - 1);
+                }
+            }
+            var sa = K(sc.childNodes[so]);
+            if (sa && _isEmptyNode(sa)) {
+                sa.remove();
+            }
+            if (_isEmptyNode(sc)) {
+                range.startBefore(sc);
+                sc.remove();
+            }
+            range.collapse(true);
+            return self;
+        }
+        self.split(true, map);
+        self.split(false, map);
+        var startDummy = doc.createElement('span'), endDummy = doc.createElement('span');
+        range.cloneRange().collapse(false).insertNode(endDummy);
+        range.cloneRange().collapse(true).insertNode(startDummy);
+        var nodeList = [], cmpStart = false;
+        K(range.commonAncestor()).scan(function (node) {
+            if (!cmpStart && node == startDummy) {
+                cmpStart = true;
+                return;
+            }
+            if (node == endDummy) {
+                return false;
+            }
+            if (cmpStart) {
+                nodeList.push(node);
+            }
+        });
+        K(startDummy).remove();
+        K(endDummy).remove();
+        sc = range.startContainer;
+        so = range.startOffset;
+        var ec = range.endContainer, eo = range.endOffset;
+        if (so > 0) {
+            var startBefore = K(sc.childNodes[so - 1]);
+            if (startBefore && _isEmptyNode(startBefore)) {
+                startBefore.remove();
+                range.setStart(sc, so - 1);
+                if (sc == ec) {
+                    range.setEnd(ec, eo - 1);
+                }
+            }
+            var startAfter = K(sc.childNodes[so]);
+            if (startAfter && _isEmptyNode(startAfter)) {
+                startAfter.remove();
+                if (sc == ec) {
+                    range.setEnd(ec, eo - 1);
+                }
+            }
+        }
+        var endAfter = K(ec.childNodes[range.endOffset]);
+        if (endAfter && _isEmptyNode(endAfter)) {
+            endAfter.remove();
+        }
+        var bookmark = range.createBookmark(true);
+        _each(nodeList, function (i, node) {
+            _removeAttrOrCss(K(node), map);
+        });
+        range.moveToBookmark(bookmark);
+        return self;
+    },
+    commonNode: function (map) {
+        var range = this.range;
+        var ec = range.endContainer, eo = range.endOffset,
+            node = (ec.nodeType == 3 || eo === 0) ? ec : ec.childNodes[eo - 1];
+        function find(node) {
+            var child = node, parent = node;
+            while (parent) {
+                if (_hasAttrOrCss(K(parent), map)) {
+                    return K(parent);
+                }
+                parent = parent.parentNode;
+            }
+            while (child && (child = child.lastChild)) {
+                if (_hasAttrOrCss(K(child), map)) {
+                    return K(child);
+                }
+            }
+            return null;
+        }
+        var cNode = find(node);
+        if (cNode) {
+            return cNode;
+        }
+        if (node.nodeType == 1 || (ec.nodeType == 3 && eo === 0)) {
+            var prev = K(node).prev();
+            if (prev) {
+                return find(prev);
+            }
+        }
+        return null;
+    },
+    commonAncestor: function (tagName) {
+        var range = this.range,
+            sc = range.startContainer, so = range.startOffset,
+            ec = range.endContainer, eo = range.endOffset,
+            startNode = (sc.nodeType == 3 || so === 0) ? sc : sc.childNodes[so - 1],
+            endNode = (ec.nodeType == 3 || eo === 0) ? ec : ec.childNodes[eo - 1];
+        function find(node) {
+            while (node) {
+                if (node.nodeType == 1) {
+                    if (node.tagName.toLowerCase() === tagName) {
+                        return node;
+                    }
+                }
+                node = node.parentNode;
+            }
+            return null;
+        }
+        var start = find(startNode), end = find(endNode);
+        if (start && end && start === end) {
+            return K(start);
+        }
+        return null;
+    },
+    state: function (key) {
+        var self = this, doc = self.doc, bool = false;
+        try {
+            bool = doc.queryCommandState(key);
+        } catch (e) {
+        }
+        return bool;
+    },
+    val: function (key) {
+        var self = this, doc = self.doc, range = self.range;
+        function lc(val) {
+            return val.toLowerCase();
+        }
+        key = lc(key);
+        var val = '', knode;
+        if (key === 'fontfamily' || key === 'fontname') {
+            val = _nativeCommandValue(doc, 'fontname');
+            val = val.replace(/['"]/g, '');
+            return lc(val);
+        }
+        if (key === 'formatblock') {
+            val = _nativeCommandValue(doc, key);
+            if (val === '') {
+                knode = self.commonNode({'h1,h2,h3,h4,h5,h6,p,div,pre,address': '*'});
+                if (knode) {
+                    val = knode.name;
+                }
+            }
+            if (val === 'Normal') {
+                val = 'p';
+            }
+            return lc(val);
+        }
+        if (key === 'fontsize') {
+            knode = self.commonNode({'*': '.font-size'});
+            if (knode) {
+                val = knode.css('font-size');
+            }
+            return lc(val);
+        }
+        if (key === 'forecolor') {
+            knode = self.commonNode({'*': '.color'});
+            if (knode) {
+                val = knode.css('color');
+            }
+            val = _toHex(val);
+            if (val === '') {
+                val = 'default';
+            }
+            return lc(val);
+        }
+        if (key === 'hilitecolor') {
+            knode = self.commonNode({'*': '.background-color'});
+            if (knode) {
+                val = knode.css('background-color');
+            }
+            val = _toHex(val);
+            if (val === '') {
+                val = 'default';
+            }
+            return lc(val);
+        }
+        return val;
+    },
+    toggle: function (wrapper, map) {
+        var self = this;
+        if (self.commonNode(map)) {
+            self.remove(map);
+        } else {
+            self.wrap(wrapper);
+        }
+        return this;
+    },
+    exec: function (key, val) {
+        if (!_getRng(this.doc)) {
+            return this;
+        }
+        this.select();
+        _nativeCommand(this.doc, key, val);
+        return this.selection();
+    },
+    bold: function () {
+        return this.exec('bold', null);
+    },
+    italic: function () {
+        return this.exec('italic', null);
+    },
+    underline: function () {
+        return this.exec('underline', null);
+    },
+    strikethrough: function () {
+        return this.exec('strikethrough', null);
+    },
+    forecolor: function (val) {
+        return this.exec('forecolor', val);
+    },
+    hilitecolor: function (val) {
+        return this.exec('hilitecolor', val);
+    },
+    fontsize: function (val) {
+        return this.exec('fontsize', val);
+    },
+    fontname: function (val) {
+        return this.exec('fontname', val);
+    },
+    fontfamily: function (val) {
+        return this.wrap('<span style="font-family:\'' + val + '\';"></span>');
+    },
+    removeformat: function () {
+        return this.exec('removeformat', null);
+    },
+    inserthtml: function (val, quickMode) {
+        return this.exec('inserthtml', val);
+    },
+    hr: function () {
+        return this.inserthtml('<hr />');
+    },
+    print: function () {
+        this.win.print();
+        return this;
+    },
+    insertimage: function (url, title, width, height, border, align) {
+        title = _undef(title, '');
+        border = _undef(border, 0);
+        var html = '<img src="' + _escape(url) + '" data-ke-src="' + _escape(url) + '" ';
+        if (width) {
+            html += 'width="' + _escape(width) + '" ';
+        }
+        if (height) {
+            html += 'height="' + _escape(height) + '" ';
+        }
+        if (title) {
+            html += 'title="' + _escape(title) + '" ';
+        }
+        if (align) {
+            html += 'align="' + _escape(align) + '" ';
+        }
+        html += 'alt="' + _escape(title) + '" ';
+        html += '/>';
+        return this.inserthtml(html);
+    },
+    createlink: function (url, type) {
+        return this.exec('createlink', url);
+    },
+    unlink: function () {
+        return this.exec('unlink', null);
+    }
 });
 _each(('formatblock,selectall,justifyleft,justifycenter,justifyright,justifyfull,insertorderedlist,' +
-	'insertunorderedlist,indent,outdent,subscript,superscript').split(','), function(i, name) {
-	KCmd.prototype[name] = function(val) {
-		var self = this;
-		self.select();
-		_nativeCommand(self.doc, name, val);
-		if (_IERANGE && _inArray(name, 'justifyleft,justifycenter,justifyright,justifyfull'.split(',')) >= 0) {
-			self.selection();
-		}
-		if (!_IERANGE || _inArray(name, 'formatblock,selectall,insertorderedlist,insertunorderedlist'.split(',')) >= 0) {
-			self.selection();
-		}
-		return self;
-	};
+    'insertunorderedlist,indent,outdent,subscript,superscript').split(','), function (i, name) {
+    KCmd.prototype[name] = function (val) {
+        return this.exec(name, val);
+    };
 });
-_each('cut,copy,paste'.split(','), function(i, name) {
-	KCmd.prototype[name] = function() {
-		var self = this;
-		if (!self.doc.queryCommandSupported(name)) {
-			throw 'not supported';
-		}
-		self.select();
-		_nativeCommand(self.doc, name, null);
-		return self;
-	};
+_each('cut,copy,paste'.split(','), function (i, name) {
+    KCmd.prototype[name] = function () {
+        var self = this;
+        if (!self.doc.queryCommandSupported(name)) {
+            throw 'not supported';
+        }
+        return this.exec(name, null);
+    };
 });
 function _cmd(mixed) {
-	if (mixed.nodeName) {
-		var doc = _getDoc(mixed);
-		mixed = _range(doc).selectNodeContents(doc.body).collapse(false);
-	}
-	return new KCmd(mixed);
+    if (mixed.nodeName) {
+        var doc = _getDoc(mixed);
+        mixed = _range(doc).selectNodeContents(doc.body).collapse(false);
+    }
+    return new KCmd(mixed);
 }
 K.CmdClass = KCmd;
 K.cmd = _cmd;
@@ -6035,240 +5924,242 @@ _plugin('core', function(K) {
 })(window);
 
 /*******************************************************************************
-* KindEditor - WYSIWYG HTML Editor for Internet
-* Copyright (C) 2006-2011 kindsoft.net
-*
-* @author Roddy <luolonghao@gmail.com>
-* @site http://www.kindsoft.net/
-* @licence http://www.kindsoft.net/license.php
-*******************************************************************************/
+ * KindEditor - WYSIWYG HTML Editor for Internet
+ * Copyright (C) 2006-2011 kindsoft.net
+ *
+ * @author Roddy <luolonghao@gmail.com>
+ * @site http://www.kindsoft.net/
+ * @licence http://www.kindsoft.net/license.php
+ *******************************************************************************/
 KindEditor.lang({
-	source : 'HTML代码',
-	preview : '预览',
-	undo : '后退(Ctrl+Z)',
-	redo : '前进(Ctrl+Y)',
-	cut : '剪切(Ctrl+X)',
-	copy : '复制(Ctrl+C)',
-	paste : '粘贴(Ctrl+V)',
-	plainpaste : '粘贴为无格式文本',
-	wordpaste : '从Word粘贴',
-	selectall : '全选(Ctrl+A)',
-	justifyleft : '左对齐',
-	justifycenter : '居中',
-	justifyright : '右对齐',
-	justifyfull : '两端对齐',
-	insertorderedlist : '编号',
-	insertunorderedlist : '项目符号',
-	indent : '增加缩进',
-	outdent : '减少缩进',
-	subscript : '下标',
-	superscript : '上标',
-	formatblock : '段落',
-	fontname : '字体',
-	fontsize : '文字大小',
-	forecolor : '文字颜色',
-	hilitecolor : '文字背景',
-	bold : '粗体(Ctrl+B)',
-	italic : '斜体(Ctrl+I)',
-	underline : '下划线(Ctrl+U)',
-	strikethrough : '删除线',
-	removeformat : '删除格式',
-	image : '图片',
-	multiimage : '批量图片上传',
-	flash : 'Flash',
-	media : '视音频',
-	video : '网络视频',
-	table : '表格',
-	tablecell : '单元格',
-	hr : '插入横线',
-	emoticons : '插入表情',
-	link : '超级链接',
-	unlink : '取消超级链接',
-	fullscreen : '全屏显示',
-	about : '关于',
-	print : '打印(Ctrl+P)',
-	filemanager : '文件空间',
-	code : '插入程序代码',
-	map : 'Google地图',
-	baidumap : '百度地图',
-	lineheight : '行距',
-	clearhtml : '清理HTML代码',
-	pagebreak : '插入分页符',
-	quickformat : '一键排版',
-	insertfile : '插入文件',
-	template : '插入模板',
-	anchor : '锚点',
-	yes : '确定',
-	no : '取消',
-	close : '关闭',
-	editImage : '图片属性',
-	deleteImage : '删除图片',
-	editFlash : 'Flash属性',
-	deleteFlash : '删除Flash',
-	editMedia : '视音频属性',
-	deleteMedia : '删除视音频',
-	editLink : '超级链接属性',
-	deleteLink : '取消超级链接',
-	editAnchor : '锚点属性',
-	deleteAnchor : '删除锚点',
-	tableprop : '表格属性',
-	tablecellprop : '单元格属性',
-	tableinsert : '插入表格',
-	tabledelete : '删除表格',
-	tablecolinsertleft : '左侧插入列',
-	tablecolinsertright : '右侧插入列',
-	tablerowinsertabove : '上方插入行',
-	tablerowinsertbelow : '下方插入行',
-	tablerowmerge : '向下合并单元格',
-	tablecolmerge : '向右合并单元格',
-	tablerowsplit : '拆分行',
-	tablecolsplit : '拆分列',
-	tablecoldelete : '删除列',
-	tablerowdelete : '删除行',
-	noColor : '无颜色',
-	pleaseSelectFile : '请选择文件。',
-	invalidImg : "请输入有效的URL地址。\n只允许jpg,gif,bmp,png格式。",
-	invalidMedia : "请输入有效的URL地址。\n只允许swf,flv,mp3,wav,wma,wmv,mid,avi,mpg,asf,rm,rmvb格式。",
-	invalidWidth : "宽度必须为数字。",
-	invalidHeight : "高度必须为数字。",
-	invalidBorder : "边框必须为数字。",
-	invalidUrl : "请输入有效的URL地址。",
-	invalidRows : '行数为必选项，只允许输入大于0的数字。',
-	invalidCols : '列数为必选项，只允许输入大于0的数字。',
-	invalidPadding : '边距必须为数字。',
-	invalidSpacing : '间距必须为数字。',
-	invalidJson : '服务器发生故障。',
-	uploadSuccess : '上传成功。',
-	cutError : '您的浏览器安全设置不允许使用剪切操作，请使用快捷键(Ctrl+X)来完成。',
-	copyError : '您的浏览器安全设置不允许使用复制操作，请使用快捷键(Ctrl+C)来完成。',
-	pasteError : '您的浏览器安全设置不允许使用粘贴操作，请使用快捷键(Ctrl+V)来完成。',
-	ajaxLoading : '加载中，请稍候 ...',
-	uploadLoading : '上传中，请稍候 ...',
-	uploadError : '上传错误',
-	'plainpaste.comment' : '请使用快捷键(Ctrl+V)把内容粘贴到下面的方框里。',
-	'wordpaste.comment' : '请使用快捷键(Ctrl+V)把内容粘贴到下面的方框里。',
-	'code.pleaseInput' : '请输入程序代码。',
-	'link.url' : 'URL',
-	'link.linkType' : '打开类型',
-	'link.newWindow' : '新窗口',
-	'link.selfWindow' : '当前窗口',
-	'flash.url' : 'URL',
-	'flash.width' : '宽度',
-	'flash.height' : '高度',
-	'flash.upload' : '上传',
-	'flash.viewServer' : '文件空间',
-	'media.url' : 'URL',
-	'media.width' : '宽度',
-	'media.height' : '高度',
-	'media.autostart' : '自动播放',
-	'media.upload' : '上传',
-	'media.viewServer' : '文件空间',
-	'image.remoteImage' : '网络图片',
-	'image.localImage' : '本地上传',
-	'image.remoteUrl' : '图片地址',
-	'image.localUrl' : '上传文件',
-	'image.size' : '图片大小',
-	'image.width' : '宽',
-	'image.height' : '高',
-	'image.resetSize' : '重置大小',
-	'image.align' : '对齐方式',
-	'image.defaultAlign' : '默认方式',
-	'image.leftAlign' : '左对齐',
-	'image.rightAlign' : '右对齐',
-	'image.imgTitle' : '图片说明',
-	'image.upload' : '浏览...',
-	'image.viewServer' : '图片空间',
-	'multiimage.uploadDesc' : '允许用户同时上传<%=uploadLimit%>张图片，单张图片容量不超过<%=sizeLimit%>',
-	'multiimage.startUpload' : '开始上传',
-	'multiimage.clearAll' : '全部清空',
-	'multiimage.insertAll' : '全部插入',
-	'multiimage.queueLimitExceeded' : '文件数量超过限制。',
-	'multiimage.fileExceedsSizeLimit' : '文件大小超过限制。',
-	'multiimage.zeroByteFile' : '无法上传空文件。',
-	'multiimage.invalidFiletype' : '文件类型不正确。',
-	'multiimage.unknownError' : '发生异常，无法上传。',
-	'multiimage.pending' : '等待上传',
-	'multiimage.uploadError' : '上传失败',
-	'filemanager.emptyFolder' : '空文件夹',
-	'filemanager.moveup' : '移到上一级文件夹',
-	'filemanager.viewType' : '显示方式：',
-	'filemanager.viewImage' : '缩略图',
-	'filemanager.listImage' : '详细信息',
-	'filemanager.orderType' : '排序方式：',
-	'filemanager.fileName' : '名称',
-	'filemanager.fileSize' : '大小',
-	'filemanager.fileType' : '类型',
-	'insertfile.url' : 'URL',
-	'insertfile.title' : '文件说明',
-	'insertfile.upload' : '上传',
-	'insertfile.viewServer' : '文件空间',
-	'table.cells' : '单元格数',
-	'table.rows' : '行数',
-	'table.cols' : '列数',
-	'table.size' : '大小',
-	'table.width' : '宽度',
-	'table.height' : '高度',
-	'table.percent' : '%',
-	'table.px' : 'px',
-	'table.space' : '边距间距',
-	'table.padding' : '边距',
-	'table.spacing' : '间距',
-	'table.align' : '对齐方式',
-	'table.textAlign' : '水平对齐',
-	'table.verticalAlign' : '垂直对齐',
-	'table.alignDefault' : '默认',
-	'table.alignLeft' : '左对齐',
-	'table.alignCenter' : '居中',
-	'table.alignRight' : '右对齐',
-	'table.alignTop' : '顶部',
-	'table.alignMiddle' : '中部',
-	'table.alignBottom' : '底部',
-	'table.alignBaseline' : '基线',
-	'table.border' : '边框',
-	'table.borderWidth' : '边框',
-	'table.borderColor' : '颜色',
-	'table.backgroundColor' : '背景颜色',
-	'map.address' : '地址: ',
-	'map.search' : '搜索',
-	'baidumap.address' : '地址: ',
-	'baidumap.search' : '搜索',
-	'baidumap.insertDynamicMap' : '插入动态地图',
-	'anchor.name' : '锚点名称',
-	'formatblock.formatBlock' : {
-		h1 : '标题 1',
-		h2 : '标题 2',
-		h3 : '标题 3',
-		h4 : '标题 4',
-		p : '正 文'
-	},
-	'fontname.fontName' : {
-		'SimSun' : '宋体',
-		'NSimSun' : '新宋体',
-		'FangSong_GB2312' : '仿宋_GB2312',
-		'KaiTi_GB2312' : '楷体_GB2312',
-		'SimHei' : '黑体',
-		'Microsoft YaHei' : '微软雅黑',
-		'Arial' : 'Arial',
-		'Arial Black' : 'Arial Black',
-		'Times New Roman' : 'Times New Roman',
-		'Courier New' : 'Courier New',
-		'Tahoma' : 'Tahoma',
-		'Verdana' : 'Verdana'
-	},
-	'lineheight.lineHeight' : [
-		{'1' : '单倍行距'},
-		{'1.5' : '1.5倍行距'},
-		{'2' : '2倍行距'},
-		{'2.5' : '2.5倍行距'},
-		{'3' : '3倍行距'}
-	],
-	'template.selectTemplate' : '可选模板',
-	'template.replaceContent' : '替换当前内容',
-	'template.fileList' : {
-		'1.html' : '图片和文字',
-		'2.html' : '表格',
-		'3.html' : '项目编号'
-	}
+    source: 'HTML代码',
+    preview: '预览',
+    undo: '后退(Ctrl+Z)',
+    redo: '前进(Ctrl+Y)',
+    cut: '剪切(Ctrl+X)',
+    copy: '复制(Ctrl+C)',
+    paste: '粘贴(Ctrl+V)',
+    plainpaste: '粘贴为无格式文本',
+    wordpaste: '从Word粘贴',
+    selectall: '全选(Ctrl+A)',
+    justifyleft: '左对齐',
+    justifycenter: '居中',
+    justifyright: '右对齐',
+    justifyfull: '两端对齐',
+    insertorderedlist: '编号',
+    insertunorderedlist: '项目符号',
+    indent: '增加缩进',
+    outdent: '减少缩进',
+    subscript: '下标',
+    superscript: '上标',
+    formatblock: '段落',
+    fontname: '字体',
+    fontsize: '文字大小',
+    forecolor: '文字颜色',
+    hilitecolor: '文字背景',
+    bold: '粗体(Ctrl+B)',
+    italic: '斜体(Ctrl+I)',
+    underline: '下划线(Ctrl+U)',
+    strikethrough: '删除线',
+    removeformat: '删除格式',
+    image: '图片',
+    multiimage: '批量图片上传',
+    flash: 'Flash',
+    media: '视音频',
+    video: '网络视频',
+    table: '表格',
+    tablecell: '单元格',
+    hr: '插入横线',
+    emoticons: '插入表情',
+    link: '超级链接',
+    unlink: '取消超级链接',
+    fullscreen: '全屏显示',
+    about: '关于',
+    print: '打印(Ctrl+P)',
+    filemanager: '文件空间',
+    code: '插入程序代码',
+    map: 'Google地图',
+    baidumap: '百度地图',
+    lineheight: '行距',
+    clearhtml: '清理HTML代码',
+    pagebreak: '插入分页符',
+    quickformat: '一键排版',
+    insertfile: '插入文件',
+    template: '插入模板',
+    anchor: '锚点',
+    yes: '确定',
+    no: '取消',
+    close: '关闭',
+    editImage: '图片属性',
+    deleteImage: '删除图片',
+    editFlash: 'Flash属性',
+    deleteFlash: '删除Flash',
+    editMedia: '视音频属性',
+    deleteMedia: '删除视音频',
+    editLink: '超级链接属性',
+    deleteLink: '取消超级链接',
+    editAnchor: '锚点属性',
+    deleteAnchor: '删除锚点',
+    tableprop: '表格属性',
+    tablecellprop: '单元格属性',
+    tableinsert: '插入表格',
+    tabledelete: '删除表格',
+    tablecolinsertleft: '左侧插入列',
+    tablecolinsertright: '右侧插入列',
+    tablerowinsertabove: '上方插入行',
+    tablerowinsertbelow: '下方插入行',
+    tablerowmerge: '向下合并单元格',
+    tablecolmerge: '向右合并单元格',
+    tablerowsplit: '拆分行',
+    tablecolsplit: '拆分列',
+    tablecoldelete: '删除列',
+    tablerowdelete: '删除行',
+    noColor: '无颜色',
+    pleaseSelectFile: '请选择文件。',
+    invalidImg: "请输入有效的URL地址。\n只允许jpg,gif,bmp,png格式。",
+    invalidMedia: "请输入有效的URL地址。\n只允许swf,flv,mp3,wav,wma,wmv,mid,avi,mpg,asf,rm,rmvb格式。",
+    invalidWidth: "宽度必须为数字。",
+    invalidHeight: "高度必须为数字。",
+    invalidBorder: "边框必须为数字。",
+    invalidUrl: "请输入有效的URL地址。",
+    invalidRows: '行数为必选项，只允许输入大于0的数字。',
+    invalidCols: '列数为必选项，只允许输入大于0的数字。',
+    invalidPadding: '边距必须为数字。',
+    invalidSpacing: '间距必须为数字。',
+    invalidJson: '服务器发生故障。',
+    uploadSuccess: '上传成功。',
+    cutError: '您的浏览器安全设置不允许使用剪切操作，请使用快捷键(Ctrl+X)来完成。',
+    copyError: '您的浏览器安全设置不允许使用复制操作，请使用快捷键(Ctrl+C)来完成。',
+    pasteError: '您的浏览器安全设置不允许使用粘贴操作，请使用快捷键(Ctrl+V)来完成。',
+    ajaxLoading: '加载中，请稍候 ...',
+    uploadLoading: '上传中，请稍候 ...',
+    uploadError: '上传错误',
+    'plainpaste.comment': '请使用快捷键(Ctrl+V)把内容粘贴到下面的方框里。',
+    'wordpaste.comment': '请使用快捷键(Ctrl+V)把内容粘贴到下面的方框里。',
+    'code.pleaseInput': '请输入程序代码。',
+    'link.url': 'URL',
+    'link.linkType': '打开类型',
+    'link.newWindow': '新窗口',
+    'link.selfWindow': '当前窗口',
+    'flash.url': 'URL',
+    'flash.width': '宽度',
+    'flash.height': '高度',
+    'flash.upload': '上传',
+    'flash.viewServer': '文件空间',
+    'media.url': 'URL',
+    'media.width': '宽度',
+    'media.height': '高度',
+    'media.autostart': '自动播放',
+    'media.upload': '上传',
+    'media.viewServer': '文件空间',
+    'image.remoteImage': '网络图片',
+    'image.localImage': '本地上传',
+    'image.remoteUrl': '图片地址',
+    'image.localUrl': '上传文件',
+    'image.size': '图片大小',
+    'image.width': '宽',
+    'image.height': '高',
+    'image.resetSize': '重置大小',
+    'image.align': '对齐方式',
+    'image.defaultAlign': '默认方式',
+    'image.leftAlign': '左对齐',
+    'image.rightAlign': '右对齐',
+    'image.imgTitle': '图片说明',
+    'image.upload': '浏览...',
+    'image.viewServer': '图片空间',
+    'multiimage.uploadDesc': '允许用户同时上传<%=uploadLimit%>张图片，单张图片容量不超过<%=sizeLimit%>',
+    'multiimage.startUpload': '开始上传',
+    'multiimage.clearAll': '全部清空',
+    'multiimage.insertAll': '全部插入',
+    'multiimage.queueLimitExceeded': '文件数量超过限制。',
+    'multiimage.fileExceedsSizeLimit': '文件大小超过限制。',
+    'multiimage.zeroByteFile': '无法上传空文件。',
+    'multiimage.invalidFiletype': '文件类型不正确。',
+    'multiimage.unknownError': '发生异常，无法上传。',
+    'multiimage.pending': '等待上传',
+    'multiimage.uploadError': '上传失败',
+    'filemanager.emptyFolder': '空文件夹',
+    'filemanager.moveup': '移到上一级文件夹',
+    'filemanager.viewType': '显示方式：',
+    'filemanager.viewImage': '缩略图',
+    'filemanager.listImage': '详细信息',
+    'filemanager.orderType': '排序方式：',
+    'filemanager.fileName': '名称',
+    'filemanager.fileSize': '大小',
+    'filemanager.fileType': '类型',
+    'insertfile.url': 'URL',
+    'insertfile.title': '文件说明',
+    'insertfile.upload': '上传',
+    'insertfile.viewServer': '文件空间',
+    'table.cells': '单元格数',
+    'table.rows': '行数',
+    'table.cols': '列数',
+    'table.size': '大小',
+    'table.width': '宽度',
+    'table.height': '高度',
+    'table.percent': '%',
+    'table.px': 'px',
+    'table.space': '边距间距',
+    'table.padding': '边距',
+    'table.spacing': '间距',
+    'table.align': '对齐方式',
+    'table.textAlign': '水平对齐',
+    'table.verticalAlign': '垂直对齐',
+    'table.alignDefault': '默认',
+    'table.alignLeft': '左对齐',
+    'table.alignCenter': '居中',
+    'table.alignRight': '右对齐',
+    'table.alignTop': '顶部',
+    'table.alignMiddle': '中部',
+    'table.alignBottom': '底部',
+    'table.alignBaseline': '基线',
+    'table.border': '边框',
+    'table.borderWidth': '边框',
+    'table.borderColor': '颜色',
+    'table.backgroundColor': '背景颜色',
+    'map.address': '地址: ',
+    'map.search': '搜索',
+    'baidumap.address': '地址: ',
+    'baidumap.search': '搜索',
+    'baidumap.insertDynamicMap': '插入动态地图',
+    'anchor.name': '锚点名称',
+    'formatblock.formatBlock': {
+        h1: '标题 1',
+        h2: '标题 2',
+        h3: '标题 3',
+        h4: '标题 4',
+        p: '正 文'
+    },
+    'fontname.fontName': {
+        '黑体': '黑体',
+        '仿宋': '仿宋',
+        '楷体': '楷体',
+        '标楷体': '标楷体',
+        '华文仿宋': '华文仿宋',
+        '华文楷体': '华文楷体',
+        '宋体': '宋体',
+        'Microsoft YaHei': '微软雅黑',
+        'Arial': 'Arial',
+        'Arial Black': 'Arial Black',
+        'Times New Roman': 'Times New Roman',
+        'Courier New': 'Courier New',
+        'Tahoma': 'Tahoma',
+        'Verdana': 'Verdana',
+    },
+    'lineheight.lineHeight': [
+        {'1': '单倍行距'},
+        {'1.5': '1.5倍行距'},
+        {'2': '2倍行距'},
+        {'2.5': '2.5倍行距'},
+        {'3': '3倍行距'}
+    ],
+    'template.selectTemplate': '可选模板',
+    'template.replaceContent': '替换当前内容',
+    'template.fileList': {
+        '1.html': '图片和文字',
+        '2.html': '表格',
+        '3.html': '项目编号'
+    }
 }, 'zh-CN');
 KindEditor.options.langType = 'zh-CN';
 
@@ -9915,7 +9806,7 @@ KindEditor.plugin('video', function (K) {
                             }
                             var html = '';
                             if (/youku\.com/.test(url)) {
-                                var arr = /id\_(\w+)[\=|\.html]/.exec(url);
+                                var arr = /id\_(.+)\.html/.exec(url);
                                 html = '<iframe src="https://player.youku.com/embed/' + arr[1] + '" width="' + width + '" height="' + height + '" frameborder="0" webkit-playsinline playsinline x5-playsinline x-webkit-airplay="allow" allowfullscreen></iframe>';
                             }
                             if (/qq\.com/.test(url)) {
